@@ -18,7 +18,9 @@ public:
 	void GetDeskScreenDC(CDC &memDC, CBitmap &bmp, BITMAP& bitmap);
 
 	void CompressBmpData(BYTE* pBmpOriginalData);
+
 	void InitBITMAPINFO(BITMAP &bitmap, int height, int width);
+
 	void CleanData();
 
 	void CloseSocketMulticast();
@@ -27,9 +29,8 @@ public:
 
 	void DeletepBitMapInfo();
 
-	// 	void SendScreenData(SOCKET socket);
 	void SendScreenData();
-	//void SendScreenBmpData(SOCKET socket);
+
 	void SendScreenBmpData(SOCKET multicastSocket, SOCKADDR_IN addr);
 
 	void SetBmpData(MULTICASTDATA &multicastData, int i, int count);
@@ -37,7 +38,8 @@ public:
 	int InitBmpData(MULTICASTDATA &multicastData);
 
 	void SetIsMulticastEnd(bool isStop);
-	//void SendBmpHeaderInfo(SOCKET socketMsg);
+
+private:
 	uLongf m_imgTotalSize;
 	BITMAPINFO* m_pBitMapInfo;
 	uLongf m_compressBmpDataLen;
@@ -45,7 +47,6 @@ public:
 	bool m_isFirst;
 	int m_bmpHeadTotalSize;
 	CMySocket m_mySocket;
-private:
 	SOCKET m_socketMulticast;
 	sockaddr_in m_addr;
 	bool m_isMulticastEnd;
