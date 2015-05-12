@@ -83,6 +83,8 @@ BEGIN_MESSAGE_MAP(CTeacherDlg, CDialogEx)
 	ON_COMMAND(ID_MULTICAST, OnMulticast)
 	ON_COMMAND(ID_SCREENMONITOR, OnBeginScreenMonitor)
 ON_WM_DESTROY()
+ON_NOTIFY(NM_CLICK, IDC_LIST1, &CTeacherDlg::OnNMClickList1)
+ON_NOTIFY(NM_DBLCLK, IDC_LIST1, &CTeacherDlg::OnNMDblclkList1)
 END_MESSAGE_MAP()
 
 
@@ -591,9 +593,9 @@ void CTeacherDlg::BeginScreenMonitor(int selCount)
 	m_pScreenDlg->ShowWindow(SW_NORMAL);
 
 
-	POSITION pos_s;
-	int itemOrder = 0;
+ 	POSITION pos_s;
 	pos_s = m_list.GetFirstSelectedItemPosition();
+	int itemOrder = 0;
 	memset(m_item, -1, sizeof(int)*MAX_MONITOR);
 	while (pos_s != NULL)
 	{
@@ -603,6 +605,26 @@ void CTeacherDlg::BeginScreenMonitor(int selCount)
 		itemData->BeginMonitor(itemOrder);
 		itemOrder = itemOrder + 1;
 	}
+
+// 	int itemOrder = 0;
+// 	memset(m_item, -1, sizeof(int)*MAX_MONITOR);
+// //	pos_s = m_list.GetFirstSelectedItemPosition();
+// 
+// 	for (int i = 0; i < m_list.GetItemCount(); i++)
+// 	{
+// 		if (m_list.GetCheck(i))
+// 		{
+// 			CString str;
+// 			str.Format(_T("第%d行的checkbox为选中状态"), i);
+// 			AfxMessageBox(str);
+// //			int item = m_list.GetNextSelectedItem(pos_s);
+// // 			m_item[itemOrder] = i;
+// // 			CItemData* itemData = (CItemData*)m_list.GetItemData(i);
+// // 			itemData->BeginMonitor(itemOrder);
+// // 			itemOrder = itemOrder + 1;
+// 
+// 		}
+// 	}
 	// 使工具栏的屏幕监控按钮变灰且无效
 	m_toolBar.GetToolBarCtrl().EnableButton(ID_SCREENMONITOR, false);
 }
@@ -736,4 +758,44 @@ void CTeacherDlg::DeleteSocketMsg()
 		closesocket(m_socketMsg);
 		m_socketMsg = NULL;
 	}
+}
+
+
+void CTeacherDlg::OnNMClickList1(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
+	// TODO:  在此添加控件通知处理程序代码
+// 	static bool isClick = false;
+// 	// 没有行被选中则iItm = -1
+// 	if (pNMItemActivate->iItem != -1)
+// 	{
+// 		if (false == isClick)
+// 		{
+// 			m_list.SetCheck(pNMItemActivate->iItem, true);
+// 			isClick = true;
+// 		}
+// 		else
+// 		{
+// 			m_list.SetCheck(pNMItemActivate->iItem, false);
+// 			isClick = false;
+// 		}
+// 	}
+	*pResult = 0;
+}
+
+
+/******************************************************************
+Function	: OnNMDblclkList1
+Date		: 2015-05-12 17:20:11
+Author		: xiaoheike
+Parameter	: pNMHDR
+			  pResult
+Return		: void
+Desc		: CListControl双击消息
+******************************************************************/
+void CTeacherDlg::OnNMDblclkList1(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
+	OnBeginScreenMonitor();
+	*pResult = 0;
 }
