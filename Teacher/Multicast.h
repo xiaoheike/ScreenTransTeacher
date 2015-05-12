@@ -13,6 +13,8 @@ public:
 	~CMulticast();
 	void GetDeskScreeData();
 
+	void SetCursorIcon(CDC &memDC);
+
 	void GetDeskScreenDC(CDC &memDC, CBitmap &bmp, BITMAP& bitmap);
 
 	void CompressBmpData(BYTE* pBmpOriginalData);
@@ -27,10 +29,15 @@ public:
 
 	// 	void SendScreenData(SOCKET socket);
 	void SendScreenData();
-	void SendBmpData(SOCKET socket);
-	void SendBmpData(SOCKET multicastSocket, SOCKADDR_IN addr);
-	void SetIsStop(bool isStop);
-	void SendBmpHeaderInfo(SOCKET socketMsg);
+	//void SendScreenBmpData(SOCKET socket);
+	void SendScreenBmpData(SOCKET multicastSocket, SOCKADDR_IN addr);
+
+	void SetBmpData(MULTICASTDATA &multicastData, int i, int count);
+
+	int InitBmpData(MULTICASTDATA &multicastData);
+
+	void SetIsMulticastEnd(bool isStop);
+	//void SendBmpHeaderInfo(SOCKET socketMsg);
 	uLongf m_imgTotalSize;
 	BITMAPINFO* m_pBitMapInfo;
 	uLongf m_compressBmpDataLen;
@@ -41,7 +48,7 @@ public:
 private:
 	SOCKET m_socketMulticast;
 	sockaddr_in m_addr;
-	bool m_isStop;
+	bool m_isMulticastEnd;
 	bool m_isInitBITMAPINFO;
 };
 

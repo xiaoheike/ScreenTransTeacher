@@ -620,7 +620,7 @@ void CTeacherDlg::OnMulticast()
 	m_pMulticast = new CMulticast();
 	if (false == m_isStopMulticast)
 	{
-		m_pMulticast->SetIsStop(false);
+		m_pMulticast->SetIsMulticastEnd(false);
 		for (int i = 0; i < m_list.GetItemCount(); i++)
 		{
 			CItemData* itemData = (CItemData*)m_list.GetItemData(i);
@@ -636,7 +636,7 @@ void CTeacherDlg::OnMulticast()
 		 	CItemData* itemData = (CItemData*)m_list.GetItemData(i);
 		 	itemData->EndMulticast();
 		}
-		m_pMulticast->SetIsStop(true);
+		m_pMulticast->SetIsMulticastEnd(true);
 		m_isStopMulticast = false;
 		DeletepMulticast();
 	}
