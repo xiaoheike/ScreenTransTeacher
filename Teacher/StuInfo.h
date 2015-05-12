@@ -5,12 +5,18 @@ class CStuInfo
 {
 public:
 	CStuInfo();
+
 	~CStuInfo();
 	void SendStuInfoReq(SOCKET socket);
+
 	void GetStuInfo(SOCKET socket);
+
 	CString GetStuName() const;
+
 	CString GetStuID() const;
+
 	CString GetStuMajor() const;
+
 	CString GetStuClass() const;
 private:
 	// Ñ§ÉúÐÕÃû
