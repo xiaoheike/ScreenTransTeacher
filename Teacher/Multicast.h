@@ -12,17 +12,27 @@ public:
 	CMulticast();
 	~CMulticast();
 	void GetDeskScreeData();
+
+	void GetDeskScreenDC(CDC &memDC, CBitmap &bmp, BITMAP& bitmap);
+
 	void CompressBmpData(BYTE* pBmpOriginalData);
 	void InitBITMAPINFO(BITMAP &bitmap, int height, int width);
 	void CleanData();
-	void SendScreenData(SOCKET socket);
+
+	void CloseSocketMulticast();
+
+	void DeletepBmpTransData();
+
+	void DeletepBitMapInfo();
+
+	// 	void SendScreenData(SOCKET socket);
 	void SendScreenData();
 	void SendBmpData(SOCKET socket);
 	void SendBmpData(SOCKET multicastSocket, SOCKADDR_IN addr);
 	void SetIsStop(bool isStop);
 	void SendBmpHeaderInfo(SOCKET socketMsg);
 	uLongf m_imgTotalSize;
-	BITMAPINFO* m_pBMPINFO;
+	BITMAPINFO* m_pBitMapInfo;
 	uLongf m_compressBmpDataLen;
 	BYTE* m_pBmpTransData;
 	bool m_isFirst;

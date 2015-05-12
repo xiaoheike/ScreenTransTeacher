@@ -17,7 +17,7 @@ void CStuInfo::SendStuInfoReq(SOCKET socket)
 // 	msgType.msgID = SYSINFO;
 // 	nRet = m_Mysocket->SendDataTCP(m_sock, (char*)&msgType, sizeof(MSGTYPE));
 	CMySocket mySocket;
-	mySocket.SendReadyInfo(socket, SYSINFO);
+	mySocket.SendReadyInfo(socket, STUDENTINFO);
 }
 
 void CStuInfo::GetStuInfo(SOCKET socket)

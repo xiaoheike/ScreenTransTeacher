@@ -10,15 +10,11 @@
 //////////////////////////////////////////////////////////////////////////
 CMulticast::CMulticast()
 	: m_pBmpTransData(NULL)
-	, m_pBMPINFO(NULL)
+	, m_pBitMapInfo(NULL)
 	, m_isFirst(false)
-	//, m_isSendFlag(true)
-	//, m_isInitBITMAPINFO(true)
-	//, m_socketScreen(INVALID_SOCKET)
-	//, m_isSocketConn(true)
-
 	, m_isStop(false)
 	, m_isInitBITMAPINFO(true)
+	, m_socketMulticast(INVALID_SOCKET)
 {
 }
 
@@ -28,32 +24,29 @@ CMulticast::~CMulticast()
 	CleanData();
 }
 
-//把下面的函数加到你初始化的地方，然后你就可以使用printf函数了
-void InitConsoleWindow()
-{
-	int nCrt = 0;
-	FILE* fp;
-	AllocConsole();
-	nCrt = _open_osfhandle((long)GetStdHandle(STD_OUTPUT_HANDLE), _O_TEXT);
-	fp = _fdopen(nCrt, "w");
-	*stdout = *fp;
-	setvbuf(stdout, NULL, _IONBF, 0);
-}
+// 把下面的函数加到你初始化的地方，然后你就可以使用printf函数了
+// void InitConsoleWindow()
+// {
+// 	int nCrt = 0;
+// 	FILE* fp;
+// 	AllocConsole();
+// 	nCrt = _open_osfhandle((long)GetStdHandle(STD_OUTPUT_HANDLE), _O_TEXT);
+// 	fp = _fdopen(nCrt, "w");
+// 	*stdout = *fp;
+// 	setvbuf(stdout, NULL, _IONBF, 0);
+// }
 
 void CMulticast::CleanData()
 {
-	if (m_pBMPINFO != NULL)
-	{
-		LocalFree(m_pBMPINFO);
-		m_pBMPINFO = NULL;
-	}
+	DeletepBitMapInfo();
 
-	if (m_pBmpTransData != NULL)
-	{
-		delete[] m_pBmpTransData;
-		m_pBmpTransData = NULL;
-	}
+	DeletepBmpTransData();
 
+	CloseSocketMulticast();
+}
+
+void CMulticast::CloseSocketMulticast()
+{
 	if (m_socketMulticast != INVALID_SOCKET)
 	{
 		closesocket(m_socketMulticast);
@@ -61,32 +54,33 @@ void CMulticast::CleanData()
 	}
 }
 
+void CMulticast::DeletepBmpTransData()
+{
+	if (m_pBmpTransData != NULL)
+	{
+		delete[] m_pBmpTransData;
+		m_pBmpTransData = NULL;
+	}
+}
+
+void CMulticast::DeletepBitMapInfo()
+{
+	if (m_pBitMapInfo != NULL)
+	{
+		LocalFree(m_pBitMapInfo);
+		m_pBitMapInfo = NULL;
+	}
+}
+
 /*
 	获得桌面的截图数据并进行调用压缩函数
 */
 void CMulticast::GetDeskScreeData()
-{
-	
-	CDC* pDeskDC = CWnd::GetDesktopWindow()->GetDC(); //获取桌面画布对象
-	int width = GetSystemMetrics(SM_CXSCREEN); //获取屏幕的宽度
-	int height = GetSystemMetrics(SM_CYSCREEN); //获取屏幕的高度
+{	
 	CDC memDC; //定义一个内存画布
-	memDC.CreateCompatibleDC(pDeskDC); //创建一个兼容的画布
 	CBitmap bmp;
-	bmp.CreateCompatibleBitmap(pDeskDC, width, height); //创建兼容位图
-	memDC.SelectObject(&bmp); //选中位图对象
 	BITMAP bitmap;
-	bmp.GetBitmap(&bitmap);
-
-	memDC.BitBlt(0, 0, width, height, pDeskDC, 0, 0, SRCCOPY);
-//	m_imgTotalSize = bitmap.bmWidthBytes * bitmap.bmHeight;
-
-// 	if (true == m_isInitBITMAPINFO)
-// 	{
-		// 初始化截图图像头信息
-		InitBITMAPINFO(bitmap, height, width);
-// 		m_isInitBITMAPINFO = false;
-// 	}
+	GetDeskScreenDC(memDC, bmp, bitmap);
 	//获取当前光标及其位置
 	HCURSOR hCursor = GetCursor();
 	POINT ptCursor;
@@ -116,13 +110,13 @@ void CMulticast::GetDeskScreeData()
 	BYTE* pBmpOriginalData = new BYTE[m_imgTotalSize];
 	// 将图像的数据拷贝到pBmpOriginalData 中
 	if (::GetDIBits(memDC.m_hDC, bmp, 0, bitmap.bmHeight,
-		pBmpOriginalData, m_pBMPINFO, DIB_RGB_COLORS) == 0)
+		pBmpOriginalData, m_pBitMapInfo, DIB_RGB_COLORS) == 0)
 	{
 		AfxMessageBox(_T("GetDIBits Error"));
 		delete[] pBmpOriginalData;
 		pBmpOriginalData = NULL;
-		LocalFree(m_pBMPINFO);
-		m_pBMPINFO = NULL;
+		LocalFree(m_pBitMapInfo);
+		m_pBitMapInfo = NULL;
 		return;
 	}
 
@@ -131,13 +125,28 @@ void CMulticast::GetDeskScreeData()
 
 	delete[] pBmpOriginalData;
 	pBmpOriginalData = NULL;
-	pDeskDC->DeleteDC();
 	DeleteDC(memDC);
 	DeleteObject(bmp);
 //	_CrtDumpMemoryLeaks();
 
 }
 
+
+void CMulticast::GetDeskScreenDC(CDC &memDC, CBitmap &bmp, BITMAP& bitmap)
+{
+	CDC* pDeskDC = CWnd::GetDesktopWindow()->GetDC(); //获取桌面画布对象
+	int width = GetSystemMetrics(SM_CXSCREEN); //获取屏幕的宽度
+	int height = GetSystemMetrics(SM_CYSCREEN); //获取屏幕的高度
+	memDC.CreateCompatibleDC(pDeskDC); //创建一个兼容的画布
+	bmp.CreateCompatibleBitmap(pDeskDC, width, height); //创建兼容位图
+	memDC.SelectObject(&bmp); //选中位图对象
+	bmp.GetBitmap(&bitmap);
+
+	memDC.BitBlt(0, 0, width, height, pDeskDC, 0, 0, SRCCOPY);
+
+	InitBITMAPINFO(bitmap, height, width);
+	pDeskDC->DeleteDC();
+}
 
 /*
 	压缩截图数据
@@ -156,16 +165,11 @@ void CMulticast::CompressBmpData(BYTE* pBmpOriginalData)
 	int err = compress(pCompressData, &m_compressBmpDataLen, pBmpOriginalData, m_imgTotalSize);
 
 	if (err != Z_OK) {
-		InitConsoleWindow();
-		printf("compess error: %d", err);
+// 		InitConsoleWindow();
+// 		printf("compess error: %d", err);
 		exit(1);
 	}
 
-	// 	InitConsoleWindow();
-	// 	printf("\r\norignal size: %d, compressed size : %d\r\n", 
-	// 		m_imgTotalSize, m_compressBmpDataLen);
-	// 	cout << "orignal size: " << m_imgTotalSize
-	// 		<< " , compressed size : " << m_compressBmpDataLen << '\n';
 	if (m_pBmpTransData != NULL)
 	{
 		delete[] m_pBmpTransData;
@@ -197,17 +201,17 @@ void CMulticast::InitBITMAPINFO(BITMAP &bitmap, int height, int width)
 	}
 	m_bmpHeadTotalSize = (int)paletteSize + sizeof(BITMAPINFO);
 
-	m_pBMPINFO = (BITMAPINFO*)LocalAlloc(LPTR, m_bmpHeadTotalSize);
-	m_pBMPINFO->bmiHeader.biBitCount = bitmap.bmBitsPixel;
-	m_pBMPINFO->bmiHeader.biClrImportant = 0;
-	m_pBMPINFO->bmiHeader.biCompression = 0;
-	m_pBMPINFO->bmiHeader.biHeight = height;
-	m_pBMPINFO->bmiHeader.biPlanes = bitmap.bmPlanes;
-	m_pBMPINFO->bmiHeader.biSize = m_bmpHeadTotalSize;//sizeof(BITMAPINFO);
-	m_pBMPINFO->bmiHeader.biSizeImage = m_imgTotalSize;
-	m_pBMPINFO->bmiHeader.biWidth = width;
-	m_pBMPINFO->bmiHeader.biXPelsPerMeter = 0;
-	m_pBMPINFO->bmiHeader.biYPelsPerMeter = 0;
+	m_pBitMapInfo = (BITMAPINFO*)LocalAlloc(LPTR, m_bmpHeadTotalSize);
+	m_pBitMapInfo->bmiHeader.biBitCount = bitmap.bmBitsPixel;
+	m_pBitMapInfo->bmiHeader.biClrImportant = 0;
+	m_pBitMapInfo->bmiHeader.biCompression = 0;
+	m_pBitMapInfo->bmiHeader.biHeight = height;
+	m_pBitMapInfo->bmiHeader.biPlanes = bitmap.bmPlanes;
+	m_pBitMapInfo->bmiHeader.biSize = m_bmpHeadTotalSize;//sizeof(BITMAPINFO);
+	m_pBitMapInfo->bmiHeader.biSizeImage = m_imgTotalSize;
+	m_pBitMapInfo->bmiHeader.biWidth = width;
+	m_pBitMapInfo->bmiHeader.biXPelsPerMeter = 0;
+	m_pBitMapInfo->bmiHeader.biYPelsPerMeter = 0;
 }
 
 /*
@@ -220,7 +224,7 @@ void CMulticast::SendBmpData(SOCKET socket)
 
 // 		m_mySocket.SendReadyInfo(socket, MULTICAST);
 		//图像信息头
-		memcpy(&multicastData.bmpHeadInfo, m_pBMPINFO, m_bmpHeadTotalSize);
+		memcpy(&multicastData.bmpHeadInfo, m_pBitMapInfo, m_bmpHeadTotalSize);
 		multicastData.bmpCompressSize = m_compressBmpDataLen;
 		multicastData.isShow = false;
 // 		multicastData.infoType = 0;
@@ -272,7 +276,7 @@ void CMulticast::SendBmpData(SOCKET multicastSocket, SOCKADDR_IN addr)
 	MULTICASTDATA multicastData;
 	memset(&multicastData, 0, sizeof(MULTICASTDATA));
 	//图像信息头
-	memcpy(&multicastData.bmpHeadInfo, m_pBMPINFO, m_bmpHeadTotalSize);
+	memcpy(&multicastData.bmpHeadInfo, m_pBitMapInfo, m_bmpHeadTotalSize);
 	multicastData.bmpCompressSize = m_compressBmpDataLen;
 	multicastData.isShow = false;
 	// 发送图像数据
@@ -284,13 +288,6 @@ void CMulticast::SendBmpData(SOCKET multicastSocket, SOCKADDR_IN addr)
 	//		multicastData.infoType = 1;
 	for (int i = 0; i < count; i++)
 	{
-		// 	 		// 通知客户端可以开始接收屏幕数据了
-		//			m_mySocket.SendReadyInfo(socket, MULTICAST);
-
-		// 			m_mySocket.SendDataUDP(m_socketMulticast, (char*)&multicastData,
-		// 				sizeof(MULTICASTDATA), m_addr);
-
-
 		memset(multicastData.transData, 0, MULTICAST_TRANS_SIZE);
 		beginPos = i * MULTICAST_TRANS_SIZE;
 		multicastData.beginPos = beginPos;
@@ -319,29 +316,29 @@ void CMulticast::SendBmpHeaderInfo(SOCKET socketMsg)
 	// 通知客户端请求已经接收到了
 //	m_mySocket.SendReadyInfo(socketMsg, MULTICASTINFO);
 	BMPINFO bmpInfo;
-	memcpy(&bmpInfo.bmpHeadInfo, m_pBMPINFO, m_bmpHeadTotalSize);
+	memcpy(&bmpInfo.bmpHeadInfo, m_pBitMapInfo, m_bmpHeadTotalSize);
 	bmpInfo.bmpCompressSize = m_compressBmpDataLen;
 
 	m_mySocket.SendDataTCP(m_socketMulticast, (char*)&bmpInfo, sizeof(BMPINFO));
 }
 
 
-void CMulticast::SendScreenData(SOCKET socketMsg)
-{
-	m_socketMulticast = m_mySocket.InitMulticastSocket(MULTICAST_TRANS_PORT, 
-		MULTICAST_IP, m_addr);
-
-	while (false == m_isStop)
-	{
-		GetDeskScreeData();
-//		SendBmpHeaderInfo(socketMsg);
-		SendBmpData(socketMsg);
-
-		Sleep(500);
-	}
-
-	CleanData();
-}
+// void CMulticast::SendScreenData(SOCKET socketMsg)
+// {
+// 	m_socketMulticast = m_mySocket.InitMulticastSocket(MULTICAST_TRANS_PORT, 
+// 		MULTICAST_IP, m_addr);
+// 
+// 	while (false == m_isStop)
+// 	{
+// 		GetDeskScreeData();
+// //		SendBmpHeaderInfo(socketMsg);
+// 		SendBmpData(socketMsg);
+// 
+// 		Sleep(500);
+// 	}
+// 
+// 	CleanData();
+// }
 
 void CMulticast::SendScreenData()
 {

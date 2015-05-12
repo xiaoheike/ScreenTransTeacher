@@ -1,14 +1,7 @@
 #include "stdafx.h"
 #include "ItemData.h"
 
-// ¼ì²éÄÚ´æÐ¹Â¶
-// #define CRTDBG_MAP_ALLOC
-// #include <stdlib.h>
-// #include <crtdbg.h>
-// ¼ì²éÄÚ´æÐ¹Â¶
-
 CItemData::CItemData()
-//	: m_filedlg(NULL)
 {
 }
 
@@ -187,7 +180,7 @@ void CItemData::BeginMonitor(int itemOrder)
 	m_itemOrder = itemOrder;
 	m_endMonitor = false;
 	m_isOneStuInScreen = false;
-	m_Mysocket.SendReadyInfo(m_sock, SCREENDATA);
+	m_Mysocket.SendReadyInfo(m_sock, BEGINSCREENMONITOR);
 }
 
 void CItemData::BeginMonitor(bool isOneSutInScreen, int itemOrder)
@@ -195,14 +188,14 @@ void CItemData::BeginMonitor(bool isOneSutInScreen, int itemOrder)
 	m_itemOrder = itemOrder;
 	m_isOneStuInScreen = isOneSutInScreen;
 	m_endMonitor = false;
-	m_Mysocket.SendReadyInfo(m_sock, SCREENDATA);
+	m_Mysocket.SendReadyInfo(m_sock, BEGINSCREENMONITOR);
 
 }
 
 
 void CItemData::EndMonitor()
 {
-	m_Mysocket.SendReadyInfo(m_sock, SCREENTRANEND);
+	m_Mysocket.SendReadyInfo(m_sock, ENDSCREENMONITOR);
 //	m_itemOrder = itemOrder;
 	m_endMonitor = true;
 }
@@ -210,12 +203,12 @@ void CItemData::EndMonitor()
 
 void CItemData::BeginMulticast()
 {
-	m_Mysocket.SendReadyInfo(m_sock, MULTICASTBEGIN);
+	m_Mysocket.SendReadyInfo(m_sock, BEGINMULTICAST);
 }
 
 void CItemData::EndMulticast()
 {
-	m_Mysocket.SendReadyInfo(m_sock, MULTICASTEND);
+	m_Mysocket.SendReadyInfo(m_sock, ENDMULTICAST);
 }
 
 void CItemData::CleanData()
@@ -261,40 +254,27 @@ void CItemData::OnBeginListen()
 			else
 			{
 				::closesocket(m_sock);
-				::SendMessage(this->m_hWnd, ID_OFFLINE, this->m_id, 0);
+				::SendMessage(this->m_hWnd, ID_STUDENTLOGINOUT, this->m_id, 0);
 				return;
 			}
 		}
 		switch (msgType.msgID)
 		{
-		case SYSINFO:
+		case STUDENTINFO:
 		{
 // 			SYSTEMINFO systeminfo;
 // 			memset(&systeminfo, 0, sizeof(SYSTEMINFO));
 // 			m_Mysocket->RecvDataTCP(m_sock, (char*)&systeminfo, sizeof(SYSTEMINFO));
 // 			GetSysVer(systeminfo);
 			m_stuInfo.GetStuInfo(m_sock);
-			::SendMessage(m_hWnd, ID_ONLINE, (WPARAM)this, 0);
+			::SendMessage(m_hWnd, ID_STUDENTLONGIN, (WPARAM)this, 0);
 		}
 			break;
-		case SCREENINFO:
-		{
-// 			if (m_screenDlg.m_hWnd != NULL/* && true == m_isScreenFlag*/)
-// 			{
-// 				if (true == m_isScreenFlag)
-// 				{
-// 				 	while (INVALID_SOCKET == m_screenSocket)
-// 				 	{
-// 				 		Sleep(10);
-// 				 	}
-// 					m_screenDlg.SetSocket(m_screenSocket);
-//  				 	m_isScreenFlag = false;
-// 				}
-// //				m_screenDlg.SetBMPHEADINFO();
-// 			}
-		}
-			break;
-		case SCREENDATA:
+// 		case SCREENINFO:
+// 		{
+// 		}
+//			break;
+		case BEGINSCREENMONITOR:
 		{
 // 			if (m_screenDlg.m_hWnd == NULL)
 // 			{
@@ -303,7 +283,7 @@ void CItemData::OnBeginListen()
 			SetScreenData();
 		}
 			break;
-		case SCREENTRANEND:
+		case ENDSCREENMONITOR:
 		{
 //			m_screenDlg.SetScreenTranEnd(false);
 		}
@@ -371,7 +351,7 @@ void CItemData::RunToFileManager()
 // 		m_filedlg->SetActiveWindow();
 // 	}
 	MSGTYPE msgType;
-	msgType.msgID = MULTICASTBEGIN;
+	msgType.msgID = BEGINMULTICAST;
 	m_Mysocket.SendDataTCP(m_sock, (char*)&msgType, sizeof(MSGTYPE));
 }
 
