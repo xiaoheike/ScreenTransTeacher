@@ -3,7 +3,7 @@
 //#include "MySocket.h"
 //#include "CmdShell.h"
 //#include "TaskDlg.h"
-#include "ScreenDlg.h"
+#include "ScreenMonitorDlg.h"
 //#include "Multicast.h"
 #include "StuInfo.h"
 //#include "FileDlg.h"
@@ -56,7 +56,7 @@ public:
 //	CFileDlg* m_filedlg;
 //	CCmdShell* m_cmdshell;
 //	CTaskDlg* m_task;
-	CScreenDlg* m_screen;
+	CScreenMonitorDlg* m_screen;
 //	CCmdShell* m_cmd;
 	int m_msgType;
 //	SOCKET m_socketData;

@@ -45,9 +45,6 @@
     <ClInclude Include="zlib.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="ScreenDlg.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="StuInfo.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -58,6 +55,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="OneStuScreenDlg.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenMonitorDlg.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -74,9 +74,6 @@
     <ClCompile Include="MySocket.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="ScreenDlg.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="StuInfo.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -87,6 +84,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="OneStuScreenDlg.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenMonitorDlg.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

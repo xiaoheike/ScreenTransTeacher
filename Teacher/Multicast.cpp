@@ -9,12 +9,12 @@
 // #include <crtdbg.h>
 //////////////////////////////////////////////////////////////////////////
 CMulticast::CMulticast()
-: m_pBmpTransData(NULL)
-, m_pBitMapInfo(NULL)
-, m_isFirst(false)
-, m_isMulticastEnd(false)
-, m_isInitBITMAPINFO(true)
-, m_socketMulticast(INVALID_SOCKET)
+	: m_pBmpTransData(NULL)
+	, m_pBitMapInfo(NULL)
+	, m_isFirst(false)
+	, m_isMulticastEnd(false)
+	, m_isInitBITMAPINFO(true)
+	, m_socketMulticast(INVALID_SOCKET)
 {
 }
 

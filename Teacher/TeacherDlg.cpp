@@ -586,7 +586,7 @@ Desc		: 发送开始屏幕监控消息到教师机
 void CTeacherDlg::BeginScreenMonitor(int selCount)
 {
 	int widthCount = (int)ceil((sqrt(double(selCount))));
-	m_pScreenDlg = new CScreenDlg(this, widthCount);
+	m_pScreenDlg = new CScreenMonitorDlg(this, widthCount);
 	m_pScreenDlg->Create(IDD_SCREEN_DIALOG);
 	m_pScreenDlg->ShowWindow(SW_NORMAL);
 

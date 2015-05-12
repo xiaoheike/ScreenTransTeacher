@@ -9,7 +9,7 @@
 #include "zconf.h"
 #pragma comment(lib,"zdll.lib")
 //////////////////////////////////////////////////////////////////////////
-#include "ScreenDlg.h"
+#include "ScreenMonitorDlg.h"
 #include "Multicast.h"
 
 // 这里的ID 是与工具栏产生时赋值的ID 是对应的
@@ -71,7 +71,7 @@ private:
 	CStatusBar m_statusBar;
 	CRect m_rect;
 	SOCKET m_socketMsg;
-	CScreenDlg* m_pScreenDlg;
+	CScreenMonitorDlg* m_pScreenDlg;
 	// 记录被监控的学生机的ID
 	int m_item[MAX_MONITOR];
 	COneStuScreenDlg* m_oneStuScreenDlg;
