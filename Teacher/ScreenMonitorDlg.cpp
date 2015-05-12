@@ -30,7 +30,7 @@ void CScreenMonitorDlg::CleanData()
 	// 		closesocket(m_screenSocket);
 	// 		m_screenSocket = NULL;
 	// 	}
-	DeletepBmpTransData();
+	DeletepBmpCompressData();
 	DeletepBitMapInfo();
 }
 
@@ -59,7 +59,7 @@ Parameter	: 无
 Return		: void
 Desc		: 释放new 的内存
 ******************************************************************/
-void CScreenMonitorDlg::DeletepBmpTransData()
+void CScreenMonitorDlg::DeletepBmpCompressData()
 {
 	if (m_pBmpCompressData != NULL)
 	{

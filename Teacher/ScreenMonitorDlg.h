@@ -66,7 +66,7 @@ public:
 
 	void DeletepBitMapInfo();
 
-	void DeletepBmpTransData();
+	void DeletepBmpCompressData();
 
 	BYTE* UnCompressData(uLongf biSizeImage, uLongf bmpCompressSize, BYTE* pBmpCompressData);
 
