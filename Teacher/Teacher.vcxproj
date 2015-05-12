@@ -102,7 +102,7 @@
     <ClInclude Include="Common.h" />
     <ClInclude Include="ItemData.h" />
     <ClInclude Include="Multicast.h" />
-    <ClInclude Include="MySocket.h" />
+    <ClInclude Include="SocketCenter.h" />
     <ClInclude Include="OneStuScreenDlg.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="ScreenMonitorDlg.h" />
@@ -117,7 +117,7 @@
   <ItemGroup>
     <ClCompile Include="ItemData.cpp" />
     <ClCompile Include="Multicast.cpp" />
-    <ClCompile Include="MySocket.cpp" />
+    <ClCompile Include="SocketCenter.cpp" />
     <ClCompile Include="OneStuScreenDlg.cpp" />
     <ClCompile Include="ScreenMonitorDlg.cpp" />
     <ClCompile Include="stdafx.cpp">

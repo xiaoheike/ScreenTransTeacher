@@ -6,7 +6,7 @@
 #pragma comment(lib,"zdll.lib")
 //////////////////////////////////////////////////////////////////////////
 #include "Common.h"
-#include "MySocket.h"
+#include "SocketCenter.h"
 #include "StuInfo.h"
 #include "OneStuScreenDlg.h"
 

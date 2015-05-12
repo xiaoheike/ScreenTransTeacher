@@ -4,7 +4,7 @@
 #include "zlib.h"
 #include "zconf.h"
 #pragma comment(lib,"zdll.lib")
-#include "MySocket.h"
+#include "SocketCenter.h"
 //////////////////////////////////////////////////////////////////////////
 class CMulticast
 {

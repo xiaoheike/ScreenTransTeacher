@@ -1,5 +1,5 @@
 #pragma once
-#include "MySocket.h"
+#include "SocketCenter.h"
 #include "Common.h"
 class CStuInfo
 {

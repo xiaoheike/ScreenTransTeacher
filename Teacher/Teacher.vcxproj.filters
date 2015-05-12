@@ -33,9 +33,6 @@
     <ClInclude Include="Resource.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="MySocket.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="Common.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -60,6 +57,9 @@
     <ClInclude Include="ScreenMonitorDlg.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="SocketCenter.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Teacher.cpp">
@@ -69,9 +69,6 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="stdafx.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="MySocket.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="StuInfo.cpp">
@@ -87,6 +84,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="ScreenMonitorDlg.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="SocketCenter.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
