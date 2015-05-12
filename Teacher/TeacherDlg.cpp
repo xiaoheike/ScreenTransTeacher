@@ -199,7 +199,7 @@ Desc		: 监听学生登录并产生唯一的ID
 ******************************************************************/
 bool CTeacherDlg::ListenStudentLogin()
 {
-	CMySocket mySocket;
+	CSocketCenter mySocket;
 	mySocket.InitSocketInfo(LISTEN_PORT, MAX_LISTEN);
 	//	SOCKET m_servSocket;
 	SOCKADDR_IN Seraddr;
@@ -464,7 +464,7 @@ LRESULT CTeacherDlg::OnEndMonitor(WPARAM wparam, LPARAM lparam)
 		if (-1 != m_item[i])
 		{
 			CItemData* itemData = (CItemData*)m_list.GetItemData(m_item[i]);
-			itemData->EndMonitor();
+			itemData->EndScreenMonitor();
 		}
 		else if (-1 == m_item[i])
 		{
@@ -493,7 +493,7 @@ LRESULT CTeacherDlg::OnCreatOneStudentDlg(WPARAM wparam, LPARAM lparam)
 	if (-1 != item)
 	{
 		CItemData* itemData = (CItemData*)m_list.GetItemData(item);
-		itemData->EndMonitor();
+		itemData->EndScreenMonitor();
 		if (m_oneStuScreenDlg != NULL)
 		{
 			delete m_oneStuScreenDlg;
@@ -541,7 +541,7 @@ LRESULT CTeacherDlg::OnEndOneStudentMonitor(WPARAM wparam, LPARAM lparam)
 	if (-1 != item)
 	{
 		CItemData* itemData = (CItemData*)m_list.GetItemData(item);
-		itemData->EndMonitor();
+		itemData->EndScreenMonitor();
 		itemData->BeginMonitor(*itemOrder);
 	}
 

@@ -1,9 +1,8 @@
 #include "stdafx.h"
 #include "MySocket.h"
-//#include "MySocket.h"
 
 
-CMySocket::CMySocket()
+CSocketCenter::CSocketCenter()
 	: m_screenSocketRecv(INVALID_SOCKET)
 	, m_socketInit(INVALID_SOCKET)
 	, m_diskDownLoadSocket(INVALID_SOCKET)
@@ -12,7 +11,7 @@ CMySocket::CMySocket()
 }
 
 
-CMySocket::~CMySocket()
+CSocketCenter::~CSocketCenter()
 {
 	if (m_socketInit != INVALID_SOCKET)
 	{
@@ -21,12 +20,12 @@ CMySocket::~CMySocket()
 	}
 }
 
-void CMySocket::Clean()
+void CSocketCenter::Clean()
 {
 	::WSACleanup();
 }
 
-int CMySocket::SendDataTCP(SOCKET socket, const char* buf, int bytes)
+int CSocketCenter::SendDataTCP(SOCKET socket, const char* buf, int bytes)
 {
 	const char *b = buf;
 	while (bytes > 0)
@@ -58,7 +57,7 @@ int CMySocket::SendDataTCP(SOCKET socket, const char* buf, int bytes)
 	return b - (char*)buf;
 }
 
-int CMySocket::RecvDataTCP(SOCKET socket, char* buf, int bytes)
+int CSocketCenter::RecvDataTCP(SOCKET socket, char* buf, int bytes)
 {
 	char *b = (char*)buf;
 	while (bytes > 0)
@@ -94,7 +93,7 @@ int CMySocket::RecvDataTCP(SOCKET socket, char* buf, int bytes)
 // {
 // 	m_romateControlDlg = romateControlDlg;
 // }
-bool CMySocket::InitSocketInfo(int port, int listenCount)
+bool CSocketCenter::InitSocketInfo(int port, int listenCount)
 {
 	WSADATA wsaData;
 	int err = ::WSAStartup(MAKEWORD(2, 2), &wsaData);
@@ -144,7 +143,7 @@ bool CMySocket::InitSocketInfo(int port, int listenCount)
 }
 
 
-SOCKET CMySocket::SocketAccept(int port, int listenCount)
+SOCKET CSocketCenter::SocketAccept(int port, int listenCount)
 {
 	if (false == InitSocketInfo(port, listenCount))
 	{
@@ -162,7 +161,7 @@ SOCKET CMySocket::SocketAccept(int port, int listenCount)
 }
 
 
-void CMySocket::DiskDownLoadSocketAccept(int port, int listenCount)
+void CSocketCenter::DiskDownLoadSocketAccept(int port, int listenCount)
 {
 	if (false == InitSocketInfo(port, listenCount))
 	{
@@ -178,7 +177,7 @@ void CMySocket::DiskDownLoadSocketAccept(int port, int listenCount)
 	}
 }
 
-void CMySocket::DiskInfoSocketAccept(int port, int listenCount)
+void CSocketCenter::DiskInfoSocketAccept(int port, int listenCount)
 {
 	if (false == InitSocketInfo(port, listenCount))
 	{
@@ -198,7 +197,7 @@ void CMySocket::DiskInfoSocketAccept(int port, int listenCount)
 /*
 服务商已经收到请求，客户端可以开始接收请求的消息
 */
-void CMySocket::SendReadyInfo(SOCKET socket, int msgID)
+void CSocketCenter::SendReadyInfo(SOCKET socket, int msgID)
 {
 	MSGTYPE msgType;
 	msgType.msgID = msgID;
@@ -206,28 +205,28 @@ void CMySocket::SendReadyInfo(SOCKET socket, int msgID)
 	SendDataTCP(socket, (char*)&msgType, sizeof(MSGTYPE));
 }
 
-SOCKET CMySocket::GetSocketRecv()
+SOCKET CSocketCenter::GetSocketRecv()
 {
 	return m_screenSocketRecv;
 }
 
-SOCKET CMySocket::GetSocketInit()
+SOCKET CSocketCenter::GetSocketInit()
 {
 	return m_socketInit;
 }
 
-SOCKET CMySocket::GetDiskDownLoadSocket()
+SOCKET CSocketCenter::GetDiskDownLoadSocket()
 {
 	return m_diskDownLoadSocket;
 }
 
-SOCKET CMySocket::GetDiskInfoSocket()
+SOCKET CSocketCenter::GetDiskInfoSocket()
 {
 	return m_diskInfoSocket;
 }
 
 
-SOCKET CMySocket::InitMulticastSocket(int port, char* multicastIp, sockaddr_in& addr)
+SOCKET CSocketCenter::InitMulticastSocket(int port, char* multicastIp, sockaddr_in& addr)
 {
 	WSAData wsaData;
 	if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
@@ -266,7 +265,7 @@ SOCKET CMySocket::InitMulticastSocket(int port, char* multicastIp, sockaddr_in& 
 }
 
 
-int CMySocket::SendDataUDP(SOCKET socket, const char* sendBuf, int sendBytes, sockaddr_in addr)
+int CSocketCenter::SendDataUDP(SOCKET socket, const char* sendBuf, int sendBytes, sockaddr_in addr)
 {
 	/* now just sendto() our destination! */
 // 	while (1) {

@@ -46,7 +46,7 @@ private:
 	BYTE* m_pBmpTransData;
 	bool m_isFirst;
 	int m_bmpHeadTotalSize;
-	CMySocket m_mySocket;
+	CSocketCenter m_mySocket;
 	SOCKET m_socketMulticast;
 	sockaddr_in m_addr;
 	bool m_isMulticastEnd;

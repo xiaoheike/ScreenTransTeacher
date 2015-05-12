@@ -1,3 +1,11 @@
+/******************************************************************* 
+FileName: ItemData.cpp
+Author	: xiaoheike
+Date	: 2015-05-12 15:50:53
+Desc	: 获得来自学生机的屏幕图像数据并转发到显示对话框
+
+
+*******************************************************************/ 
 #include "stdafx.h"
 #include "ItemData.h"
 
@@ -10,16 +18,24 @@ CItemData::~CItemData()
 }
 
 CItemData::CItemData(int id, HWND m_hWnd, SOCKET msgSocket)
-: m_id(id)
-, m_hWnd(m_hWnd)
-, m_sock(msgSocket)
-, m_pBitMapInfo(NULL)
-, m_pBmpCompressData()
-, m_endMonitor(false)
-, m_isOneStuInScreen(false)
+	: m_id(id)
+	, m_hWnd(m_hWnd)
+	, m_socketMsg(msgSocket)
+	, m_pBitMapInfo(NULL)
+	, m_pBmpCompressData()
+	, m_endMonitor(false)
+	, m_isOneStuInScreen(false)
 {
 }
 
+/******************************************************************
+Function	: OnListen
+Date		: 2015-05-12 15:19:28
+Author		: xiaoheike
+Parameter	: lp--CItemData 对象
+Return		: DWORD WINAPI
+Desc		: 监听主消息的线程调用函数
+******************************************************************/
 DWORD WINAPI CItemData::OnListen(LPVOID lp)
 {
 	CItemData* t = (CItemData*)lp;
@@ -27,21 +43,32 @@ DWORD WINAPI CItemData::OnListen(LPVOID lp)
 	return 0;
 }
 
+/******************************************************************
+Function	: Run
+Date		: 2015-05-12 15:23:40
+Author		: xiaoheike
+Parameter	: 无
+Return		: void
+Desc		: 在这里启动监听消息的线程
+******************************************************************/
 void CItemData::Run()
 {
 	::CloseHandle(CreateThread(0, 0, OnListen, (LPVOID)this, 0, NULL));
 }
 
-// void CItemData::SetMsgType(int msgType)
-// {
-// 	m_msgType = msgType;
-// }
-
-void CItemData::SendScreenBmpData()
+/******************************************************************
+Function	: SendScreenBmpData
+Date		: 2015-05-12 15:24:04
+Author		: xiaoheike
+Parameter	: 无
+Return		: void
+Desc		: 接收来自学生机的屏幕图像数据并将数据发送给显示图像的对话框
+******************************************************************/
+void CItemData::SetScreenBmpData()
 {
 	BMPDATA bmpData;
 	memset(&bmpData, 0, sizeof(BMPDATA));
-	int nRet = m_Mysocket.RecvDataTCP(m_sock, (char*)&bmpData, sizeof(BMPDATA));
+	int nRet = m_Mysocket.RecvDataTCP(m_socketMsg, (char*)&bmpData, sizeof(BMPDATA));
 
 	switch (bmpData.infoType)
 	{
@@ -56,10 +83,18 @@ void CItemData::SendScreenBmpData()
 		CleanData();
 		exit(1);
 	}
-	ShowBmp(bmpData);
+	SendBmpDataToDlg(bmpData);
 }
 
-void CItemData::ShowBmp(BMPDATA &bmpData)
+/******************************************************************
+Function	: SendBmpDataToDlg
+Date		: 2015-05-12 15:26:18
+Author		: xiaoheike
+Parameter	: bmpData--MBPDATA图像数据的结构体，图像的必要信息
+Return		: void
+Desc		: 将学生机接收到的屏幕图像数据发送到显示图像的对话框
+******************************************************************/
+void CItemData::SendBmpDataToDlg(BMPDATA &bmpData)
 {
 	if (bmpData.isShow && false == m_endMonitor)
 	{
@@ -84,6 +119,14 @@ void CItemData::ShowBmp(BMPDATA &bmpData)
 	}
 }
 
+/******************************************************************
+Function	: SetBmpTransDataLast
+Date		: 2015-05-12 15:27:38
+Author		: xiaoheike
+Parameter	: bmpData--MBPDATA图像数据的结构体，图像的必要信息
+Return		: void
+Desc		: 接收来自学生机的一幅屏幕图像数据的最后一部分
+******************************************************************/
 void CItemData::SetBmpTransDataLast(BMPDATA &bmpData)
 {
 	int lastTransSize = bmpData.bmpCompressSize - bmpData.beginPos;
@@ -106,6 +149,15 @@ void CItemData::SetBmpTransDataNotLast(BMPDATA &bmpData)
 		SCREEN_TRANS_SIZE, bmpData.transData, SCREEN_TRANS_SIZE);
 }
 
+/******************************************************************
+Function	: UnCompressData
+Date		: 2015-05-12 15:28:43
+Author		: xiaoheike
+Parameter	: biSizeImage--未压缩时的图像大小
+			  bmpCompressSize--压缩后的图像大小
+Return		: BYTE*
+Desc		: 将接收到的屏幕图像数据解压
+******************************************************************/
 BYTE* CItemData::UnCompressData(uLongf biSizeImage, uLongf bmpCompressSize)
 {
 	uLongf unCompressDataLen = (uLongf)((biSizeImage + 12)*(100.1 / 100)) + 1;
@@ -129,46 +181,97 @@ BYTE* CItemData::UnCompressData(uLongf biSizeImage, uLongf bmpCompressSize)
 	return bmpShowData;
 }
 
+/******************************************************************
+Function	: BeginMonitor
+Date		: 2015-05-12 15:29:51
+Author		: xiaoheike
+Parameter	: itemOrder--被监控学生面在对话框上显示的序号
+Return		: void
+Desc		: 1对多监控时发送屏幕监控消息到学生机，表示教师机要监控你的画面
+******************************************************************/
 void CItemData::BeginMonitor(int itemOrder)
 {
 	m_itemOrder = itemOrder;
 	m_endMonitor = false;
 	m_isOneStuInScreen = false;
-	m_Mysocket.SendReadyInfo(m_sock, BEGINSCREENMONITOR);
+	m_Mysocket.SendReadyInfo(m_socketMsg, BEGINSCREENMONITOR);
 }
 
+/******************************************************************
+Function	: BeginMonitor
+Date		: 2015-05-12 15:31:13
+Author		: xiaoheike
+Parameter	: isOneSutInScreen--false 将学生机屏幕图像数据发送给class CScreenMonitorDlg
+true 将学生机屏幕图像数据发送给class COneStuScreenDlg
+			  itemOrder--学生屏幕在对话框上显示的序号
+Return		: void
+Desc		: 1对1监控时发送屏幕监控消息到学生机，表示教师机要监控你的画面
+******************************************************************/
 void CItemData::BeginMonitor(bool isOneSutInScreen, int itemOrder)
 {
 	m_itemOrder = itemOrder;
 	m_isOneStuInScreen = isOneSutInScreen;
 	m_endMonitor = false;
-	m_Mysocket.SendReadyInfo(m_sock, BEGINSCREENMONITOR);
+	m_Mysocket.SendReadyInfo(m_socketMsg, BEGINSCREENMONITOR);
 }
 
-void CItemData::EndMonitor()
+/******************************************************************
+Function	: EndMonitor
+Date		: 2015-05-12 15:34:26
+Author		: xiaoheike
+Parameter	: 无
+Return		: void
+Desc		: 发送消息，结束对学生机的屏幕图像监控
+******************************************************************/
+void CItemData::EndScreenMonitor()
 {
-	m_Mysocket.SendReadyInfo(m_sock, ENDSCREENMONITOR);
+	m_Mysocket.SendReadyInfo(m_socketMsg, ENDSCREENMONITOR);
 	//	m_itemOrder = itemOrder;
 	m_endMonitor = true;
 }
 
+/******************************************************************
+Function	: BeginMulticast
+Date		: 2015-05-12 15:35:26
+Author		: xiaoheike
+Parameter	: 无
+Return		: void
+Desc		: 开始教师机屏幕广播
+******************************************************************/
 void CItemData::BeginMulticast()
 {
-	m_Mysocket.SendReadyInfo(m_sock, BEGINMULTICAST);
+	m_Mysocket.SendReadyInfo(m_socketMsg, BEGINMULTICAST);
 }
 
+/******************************************************************
+Function	: EndMulticast
+Date		: 2015-05-12 15:35:47
+Author		: xiaoheike
+Parameter	: 无
+Return		: void
+Desc		: 结束教师机屏幕广播
+******************************************************************/
 void CItemData::EndMulticast()
 {
-	m_Mysocket.SendReadyInfo(m_sock, ENDMULTICAST);
+	m_Mysocket.SendReadyInfo(m_socketMsg, ENDMULTICAST);
 }
 
 void CItemData::CleanData()
 {
-	if (m_pBmpCompressData != NULL)
-	{
-		delete[] m_pBmpCompressData;
-		m_pBmpCompressData = NULL;
-	}
+	DeletepBmpCompressData();
+	DeletepBitMapInfo();
+}
+
+/******************************************************************
+Function	: DeletepBitMapInfo
+Date		: 2015-05-12 15:36:36
+Author		: xiaoheike
+Parameter	: 无
+Return		: void
+Desc		: 释放new 的内存
+******************************************************************/
+void CItemData::DeletepBitMapInfo()
+{
 	if (m_pBitMapInfo != NULL)
 	{
 		LocalFree(m_pBitMapInfo);
@@ -176,80 +279,96 @@ void CItemData::CleanData()
 	}
 }
 
+/******************************************************************
+Function	: DeletepBmpCompressData
+Date		: 2015-05-12 15:36:40
+Author		: xiaoheike
+Parameter	: 无
+Return		: void
+Desc		: 释放new 的内存
+******************************************************************/
+void CItemData::DeletepBmpCompressData()
+{
+	if (m_pBmpCompressData != NULL)
+	{
+		delete[] m_pBmpCompressData;
+		m_pBmpCompressData = NULL;
+	}
+}
+
+/******************************************************************
+Function	: OnBeginListen
+Date		: 2015-05-12 15:37:08
+Author		: xiaoheike
+Parameter	: 无
+Return		: void
+Desc		: 监听来自学生机的消息
+******************************************************************/
 void CItemData::OnBeginListen()
 {
 	int nRet;
 	MSGTYPE msgType;
-	m_stuInfo.SendStuInfoReq(m_sock);
+	m_stuInfo.SendStuInfoReq(m_socketMsg);
 	while (true)
 	{
-		nRet = m_Mysocket.RecvDataTCP(m_sock, (char*)&msgType, sizeof(MSGTYPE));
-		// SOCKET 连接是否关闭
-		if (nRet == 0)
+		SendDataTCP(nRet, msgType);
+		if (nRet  != 0)
 		{
-			// SOCKET 是否发生阻塞
-			if (::WSAGetLastError() == WSAEWOULDBLOCK)
+			switch (msgType.msgID)
 			{
-				Sleep(50);
-				continue;
+			case STUDENTINFO:
+				m_stuInfo.GetStuInfo(m_socketMsg);
+				::SendMessage(m_hWnd, ID_STUDENTLONGIN, (WPARAM)this, 0);
+				break;
+			case BEGINSCREENMONITOR:
+				SetScreenBmpData();
+				break;
+			default:
+				MessageBox(_T("消息有问题"), _T("警告"), MB_OK);
+				break;
 			}
-			else
-			{
-				::closesocket(m_sock);
-				::SendMessage(this->m_hWnd, ID_STUDENTLOGINOUT, this->m_id, 0);
-				return;
-			}
-		}
-		switch (msgType.msgID)
-		{
-		case STUDENTINFO:
-			::SendMessage(m_hWnd, ID_STUDENTLONGIN, (WPARAM)this, 0);
-			break;
-		case BEGINSCREENMONITOR:
-		    SendScreenBmpData();
-			break;
-		case ENDSCREENMONITOR:
-		{
-								 //			m_screenDlg.SetScreenTranEnd(false);
-		}
-			break;
-		default:
-			MessageBox(_T("消息有问题"), _T("警告"), MB_OK);
-			break;
 		}
 	}
 }
 
-SOCKET CItemData::GetSocket()
+/******************************************************************
+Function	: SendDataTCP
+Date		: 2015-05-12 15:38:03
+Author		: xiaoheike
+Parameter	: nRet--接收消息的返回值
+			  msgType--来自学生机的消息的请求内容
+Return		: void
+Desc		: 接收来自学生机的消息
+******************************************************************/
+void CItemData::SendDataTCP(int &nRet, MSGTYPE& msgType)
 {
-	return this->m_sock;
+	nRet = m_Mysocket.RecvDataTCP(m_socketMsg, (char*)&msgType, sizeof(MSGTYPE));
+	// SOCKET 连接是否关闭
+	if (nRet == 0)
+	{
+		// SOCKET 是否发生阻塞
+		if (::WSAGetLastError() == WSAEWOULDBLOCK)
+		{
+			Sleep(50);
+		}
+		else
+		{
+			::closesocket(m_socketMsg);
+			::SendMessage(this->m_hWnd, ID_STUDENTLOGINOUT, this->m_id, 0);
+			return;
+		}
+	}
 }
 
-// DWORD WINAPI CItemData::OnSendScreenData(LPVOID self)
-// {
-// 	CItemData* thread = (CItemData*)self;
-// 	thread->SendScreenData();
-// 	return 0;
-// }
-// 
-// void CItemData::SendScreenData()
-// {
-// 	//	m_multicast.SendScreenData(m_sock);
-// }
-
-//////////////////////////////////////////////////////////////////////////
-// 磁盘管理
-//////////////////////////////////////////////////////////////////////////
-// void CItemData::RunToFileManager()
-// {
-// 	MSGTYPE msgType;
-// 	msgType.msgID = BEGINMULTICAST;
-// 	m_Mysocket.SendDataTCP(m_sock, (char*)&msgType, sizeof(MSGTYPE));
-// }
-
-//////////////////////////////////////////////////////////////////////////
-// 屏幕监控
-//////////////////////////////////////////////////////////////////////////
-// void CItemData::RunToScreen()
-// {
-// }
+/******************************************************************
+Function	: GetSocket
+Date		: 2015-05-12 15:39:21
+Author		: xiaoheike
+Parameter	: 无
+Return		: SOCKET
+Desc		: 返回一个连接的SOCKET
+******************************************************************/
+SOCKET CItemData::GetSocket()
+{
+	return this->m_socketMsg;
+}

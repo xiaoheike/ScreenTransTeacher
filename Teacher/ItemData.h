@@ -19,19 +19,15 @@ public:
 
 	void OnBeginListen();
 
+	void SendDataTCP(int &nRet, MSGTYPE& msgType);
+
 	UINT m_id;
 
 	SOCKET GetSocket();
 
-// 	void RunToFileManager();
+	void SetScreenBmpData();
 
-//	void RunToScreen();
-	
-//	void SetMsgType(int msgType);
-
-	void SendScreenBmpData();
-
-	void ShowBmp(BMPDATA &bmpData);
+	void SendBmpDataToDlg(BMPDATA &bmpData);
 
 	void SetBmpTransDataLast(BMPDATA &bmpData);
 
@@ -43,7 +39,7 @@ public:
 
 	void BeginMonitor(bool isOneSutInScreen, int itemOrder);
 
-	void EndMonitor();
+	void EndScreenMonitor();
 
 	void BeginMulticast();
 
@@ -51,19 +47,13 @@ public:
 	
 	void CleanData();
 
+	void DeletepBitMapInfo();
+
+	void DeletepBmpCompressData();
+
 	static DWORD WINAPI GetScreen(LPVOID self);
 	
 	void go();
-
-//	void SetScreenSocket(SOCKET screenSocket);
-
-//	static DWORD WINAPI OnScreenSocketAccept(LPVOID self);
-
-//	void ScreenSocketAccept();
-
-// 	static DWORD WINAPI OnSendScreenData(LPVOID self);
-// 
-// 	void SendScreenData();
 
 	CStuInfo m_stuInfo;
 private:
@@ -72,8 +62,8 @@ private:
 	int m_itemOrder;
 	bool m_endMonitor;
 	bool m_isOneStuInScreen;
-	SOCKET m_sock;
-	CMySocket m_Mysocket;
+	SOCKET m_socketMsg;
+	CSocketCenter m_Mysocket;
 	HWND m_hWnd;
 	CScreenMonitorDlg* m_screenMonitorDlg;
 //	int m_msgType;

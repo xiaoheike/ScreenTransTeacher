@@ -21,7 +21,7 @@ Desc		: 向请求学生机登录信息
 ******************************************************************/
 void CStuInfo::SendStuInfoReq(SOCKET socket)
 {
-	CMySocket mySocket;
+	CSocketCenter mySocket;
 	mySocket.SendReadyInfo(socket, STUDENTINFO);
 }
 
@@ -37,7 +37,7 @@ void CStuInfo::GetStuInfo(SOCKET socket)
 {
 	STUINFODATA stuInfoData;
 	memset(&stuInfoData, 0, sizeof(STUINFODATA));
-	CMySocket mySocket;
+	CSocketCenter mySocket;
 	mySocket.RecvDataTCP(socket, (char*)&stuInfoData, sizeof(STUINFODATA));
 
 	m_stuName.Format(_T("%s"), stuInfoData.m_stuName);

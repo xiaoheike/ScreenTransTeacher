@@ -1,11 +1,11 @@
 #pragma once
 #include "Common.h"
 
-class CMySocket
+class CSocketCenter
 {
 public:
-	CMySocket();
-	~CMySocket();
+	CSocketCenter();
+	~CSocketCenter();
 	void Clean();
 	int SendDataTCP(SOCKET socket, const char* buf, int bytes);
 	int RecvDataTCP(SOCKET socket, char* buf, int bytes);
